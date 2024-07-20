@@ -26,7 +26,9 @@ where $\phi$ is the probability density function of the standard normal distribu
 ### Distributionally Robust CVaR
 The Distributionally Robust CVaR from the GMM components is the greatest lower bound of the calculated CVaR values for each component:
 
-$$ \inf_{\alpha} \text{CVaR} = \min \left\{ \text{CVaR}_{\alpha,1}, \text{CVaR}_{\alpha,2}, \ldots, \text{CVaR}_{\alpha,N} \right\} $$
+```math
+\inf_{\alpha} \text{DR-CVaR} = \min \{\text{CVaR}_{\alpha,1}, \text{CVaR}_{\alpha,2},  \ldots, \text{CVaR}_{\alpha,N}\}
+```
 
 where $N$ is the number of components in the GMM.
 
