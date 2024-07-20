@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.stats import norm, invgamma
-from sklearn.mixture import GaussianMixture
+from gmm_creation import create_gmm
 import matplotlib.pyplot as plt
+
 
 class DistributionallyRobustCVaR:
     def __init__(self, gmm):
@@ -18,11 +19,10 @@ class DistributionallyRobustCVaR:
         """
         Calculate Conditional Value at Risk (CVaR) for a normal distribution.
         """
-        var = self.calculate_var(mu, sigma, alpha)
         cvar = mu + sigma * (norm.pdf(norm.ppf(alpha)) / (1 - alpha))
         return cvar
 
-    def compute_infimum_cvar(self, alpha=0.95):
+    def compute_dr_cvar(self, alpha=0.95):
         """
         Compute the infimum of CVaR values from the GMM components.
         """
@@ -32,25 +32,78 @@ class DistributionallyRobustCVaR:
             sigma = np.sqrt(cov[0, 0])
             cvar = self.calculate_cvar(mu, sigma, alpha)
             cvar_values.append(cvar)
-        infimum_cvar = np.min(cvar_values)
-        return infimum_cvar
+        dr_cvar = np.min(cvar_values)
+        dr_cvar_index = np.argmin(cvar_values)
+        return dr_cvar, cvar_values, dr_cvar_index
 
     def is_within_boundary(self, boundary, alpha=0.95):
         """
-        Check if the infimum CVaR is within the specified boundary.
+        Check if the Distributionally Robust CVaR is within the specified boundary.
         """
-        infimum_cvar = self.compute_infimum_cvar(alpha)
-        return infimum_cvar <= boundary
+        dr_cvar, _, _ = self.compute_dr_cvar(alpha)
+        return dr_cvar <= boundary
 
-# Example usage
+
+def plot_gmm_with_cvar(gmm, cvar_values, dr_cvar_index):
+    """
+    Plot the GMM with individual components, CVaR boundaries, and DR_CVaR line.
+    """
+    x = np.linspace(gmm.means_.min() - 3, gmm.means_.max() + 3, 1000).reshape(-1, 1)
+    logprob = gmm.score_samples(x)
+    responsibilities = gmm.predict_proba(x)
+    pdf = np.exp(logprob)
+    pdf_individual = responsibilities * pdf[:, np.newaxis]
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, pdf, '-k', label='GMM')
+
+    for i, cvar in enumerate(cvar_values):
+        color = 'red'
+        linestyle = '-'
+        linewidth = 1 if i != dr_cvar_index else 2.5
+        plt.axvline(cvar, color=color, linestyle=linestyle, linewidth=linewidth, label=f'Component {i+1} CVaR')
+        if i == dr_cvar_index:
+            plt.annotate('DR_CVaR', xy=(cvar, 0.0), xytext=(cvar - 0.15, 0.03),
+                            arrowprops=dict(facecolor=color, shrink=0.05),
+                            horizontalalignment='right')
+
+    for i in range(pdf_individual.shape[1]):
+        plt.plot(x, pdf_individual[:, i], '--', label=f'GMM Component {i+1}')
+
+    plt.xlabel('Value')
+    plt.ylabel('Density')
+    plt.title('Gaussian Mixture Model with Individual Components and CVaR Boundaries')
+    plt.legend()
+    plt.show()
+    
+
 if __name__ == "__main__":
-    # Assume gmm is already created with create_gmm function from previous code
-    gmm = ...  # your GMM object here
+    # Define Gaussian distributions for means
+    gaussians = [norm(loc=5, scale=1.5)]
+    
+    # Define Inverse-Gamma distributions for variances
+    inv_gammas = [invgamma(a=2.5, scale=1.2)]
+    
+    # Create GMM
+    gmm = create_gmm(gaussians, inv_gammas, num_samples=3)
+    
+    # Print the means and covariances of the created GMM
+    print("GMM Means:", gmm.means_)
+    print("GMM Covariances:", gmm.covariances_)
 
+    # Initialize the Distributionally Robust CVaR filter
     cvar_filter = DistributionallyRobustCVaR(gmm)
-    boundary = 10  # example boundary
-    infimum_cvar = cvar_filter.compute_infimum_cvar(alpha=0.95)
-    within_boundary = cvar_filter.is_within_boundary(boundary, alpha=0.95)
 
-    print(f"Infimum CVaR: {infimum_cvar}")
+    # Define a boundary for the CVaR
+    boundary = 10
+
+    # Compute the Distributionally Robust CVaR
+    dr_cvar, cvar_values, dr_cvar_index = cvar_filter.compute_dr_cvar(alpha=0.95)
+    print(f"Distributionally Robust CVaR: {dr_cvar}")
+
+    # Check if the Distributionally Robust CVaR is within the specified boundary
+    within_boundary = cvar_filter.is_within_boundary(boundary, alpha=0.95)
     print(f"Within Boundary: {within_boundary}")
+
+    # Plot the GMM with individual components and CVaR boundaries
+    plot_gmm_with_cvar(gmm, cvar_values, dr_cvar_index)
