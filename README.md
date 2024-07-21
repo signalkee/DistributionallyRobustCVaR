@@ -13,17 +13,16 @@ This repository contains an implementation of a Distributionally Robust Conditio
 - $x$: Random variable representing the system state.
 - $P^*$: True underlying distribution of $x$.
 - $P$: Ambiguity set containing possible distributions of $x$.
-- $\mu$: Mean of the normal distribution.
-- $\sigma$: Standard deviation of the normal distribution.
-- $\alpha$: Confidence level.
+- $\varepsilon$: Allowable probability.
 - $l(x)$: Loss function, representing any general loss or cost associated with $x$.
 - $\gamma$: Threshold value for the VaR.
-
 
 ### Value at Risk (VaR)
 The Value at Risk (VaR) at a confidence level $\alpha$ for a normal distribution with mean $\mu$ and standard deviation $\sigma$ is given by:
 
-$$ \text{VaR}_{\alpha}(l(x)) := \inf\{\gamma \in \mathbb{R} \mid \text{Prob}(l(x) > \gamma) \leq \alpha\} $$
+```math
+\text{VaR}_{\varepsilon}^{P^*}(l(x)) := \inf\{\gamma \in \mathbb{R} \mid \text{Prob}^{P^*}(l(x) > \gamma) \leq \varepsilon\}
+```
 
 where $l(x)$ is the loss function.
 
@@ -32,7 +31,7 @@ where $l(x)$ is the loss function.
 The Conditional Value at Risk (CVaR) at a confidence level $\alpha$ is the expected loss given that the loss is beyond the VaR threshold. For a normal distribution, it is calculated as:
 
 ```math
-\text{CVaR}_{\alpha}(l(x)) := \inf_{\beta \in \mathbb{R}}\left\{\beta + \frac{1}{\alpha} \mathbb{E}\left[(l(x) - \beta)^{+}\right]\right\}
+\text{CVaR}_{\varepsilon}^{P^*}(l(x)) := \inf_{\beta \in \mathbb{R}}\left\{\beta + \frac{1}{\varepsilon} \mathbb{E}_{P^*}\left[(l(x) - \beta)^{+}\right]\right\}
 ```
 
 where $(\cdot)^{+}$ denotes the positive part.
@@ -42,7 +41,7 @@ where $(\cdot)^{+}$ denotes the positive part.
 The Distributionally Robust CVaR from the GMM components is computed over an ambiguity set $\mathcal{P}$ of distributions. It is defined as:
 
 ```math
-\sup_{P \in \mathcal{P}} \text{CVaR}_{\alpha}^{P}(l(x)) \leq 0 \Rightarrow \inf_{P \in \mathcal{P}} \text{Prob}_{P}(l(x) \leq 0) \geq 1 - \alpha
+\sup_{P \in \mathcal{P}} \text{CVaR}_{\varepsilon}^{P}(l(x)) \leq 0 \Rightarrow \inf_{P \in \mathcal{P}} \text{Prob}^{P}(l(x) \leq 0) \geq 1 - \varepsilon
 ```
 
 where $\mathcal{P}$ is the ambiguity set containing all possible distributions that are consistent with the known first and second-order moments of the data.
