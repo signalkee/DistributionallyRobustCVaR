@@ -21,6 +21,9 @@ This repository contains an implementation of a Distributionally Robust Conditio
 The Value at Risk (VaR) at a confidence level $\alpha$ for a normal distribution with mean $\mu$ and standard deviation $\sigma$ is given by:
 
 ```math
+\text{VaR}_\varepsilon = \mu + \sigma \cdot \Phi^{-1}(\varepsilon)
+```
+```math
 \text{VaR}_{\varepsilon}^{P^*}(l(x)) := \inf\{\gamma \in \mathbb{R} \mid \text{Prob}^{P^*}(l(x) > \gamma) \leq \varepsilon\}
 ```
 
@@ -30,6 +33,9 @@ where $l(x)$ is the loss function.
 ### Conditional Value at Risk (CVaR)
 The Conditional Value at Risk (CVaR) at a confidence level $\alpha$ is the expected loss given that the loss is beyond the VaR threshold. For a normal distribution, it is calculated as:
 
+```math
+\text{CVaR}_\varepsilon = \mu + \sigma \cdot \frac{\phi(\Phi^{-1}(\varepsilon))}{1 - \varepsilon}
+```
 ```math
 \text{CVaR}_{\varepsilon}^{P^*}(l(x)) := \inf_{\beta \in \mathbb{R}}\left\{\beta + \frac{1}{\varepsilon} \mathbb{E}_{P^*}\left[(l(x) - \beta)^{+}\right]\right\}
 ```
