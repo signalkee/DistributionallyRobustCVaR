@@ -7,7 +7,7 @@ This repository contains an implementation of a Distributionally Robust Conditio
 - Compute the Distributionally Robust CVaR from the GMM components.
 - Check if the Distributionally Robust CVaR is within a specified boundary.
 
-## Equations
+## Basic Definitions
 
 ### Notations
 - $x$: Random variable representing the system state.
@@ -16,6 +16,26 @@ This repository contains an implementation of a Distributionally Robust Conditio
 - $\varepsilon$: Allowable probability.
 - $l(x)$: Loss function, representing any general loss or cost associated with $x$.
 - $\gamma$: Threshold value for the VaR.
+- $\phi$: Probability density function (PDF) of the standard normal distribution.
+- $\Phi$: Cumulative distribution function (CDF) of the standard normal distribution.
+- $\Phi^{-1}$: Percent point function (PPF) or inverse CDF of the standard normal distribution.
+
+### Probability Density Function (PDF)
+The probability density function (PDF) of a normal distribution with mean $\mu$ and standard deviation $\sigma$ is given by:
+
+```math
+\phi(x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x - \mu)^2}{2\sigma^2}}
+```
+
+### Percent Point Function (PPF)
+The percent point function (PPF), also known as the inverse cumulative distribution function (inverse CDF), for the standard normal distribution, is the function $\Phi^{-1}(\varepsilon)$, which returns the value $x$ such that:
+
+```math
+\Phi(x) = \varepsilon
+```
+
+
+## Risk Measures
 
 ### Value at Risk (VaR)
 The Value at Risk (VaR) at a confidence level $\alpha$ for a normal distribution with mean $\mu$ and standard deviation $\sigma$ is given by:
