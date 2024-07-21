@@ -79,7 +79,9 @@ Plot the GMM.
 4. Check if the CVaR is within a specified boundary.
 5. Plot the GMM with individual components and CVaR boundaries.
 
-
+License
+-------
+The contents of this repository are covered under the [MIT License](LICENSE).
 
 
 
