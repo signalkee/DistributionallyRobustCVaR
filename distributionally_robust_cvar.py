@@ -53,22 +53,26 @@ def plot_gmm_with_cvar(gmm, cvar_values, dr_cvar_index):
     responsibilities = gmm.predict_proba(x)
     pdf = np.exp(logprob)
     pdf_individual = responsibilities * pdf[:, np.newaxis]
-
+    pdf = pdf * (1 / 3)
+    
     plt.figure(figsize=(10, 6))
-    plt.plot(x, pdf, '-k', label='GMM')
-
-    for i, cvar in enumerate(cvar_values):
-        color = 'red'
-        linestyle = '-'
-        linewidth = 1 if i != dr_cvar_index else 2.5
-        plt.axvline(cvar, color=color, linestyle=linestyle, linewidth=linewidth, label=f'Component {i+1} CVaR')
-        if i == dr_cvar_index:
-            plt.annotate('DR_CVaR', xy=(cvar, 0.0), xytext=(cvar - 0.15, 0.03),
-                            arrowprops=dict(facecolor=color, shrink=0.05),
-                            horizontalalignment='right')
+    plt.plot(x, pdf, '-k', label='GMM', linewidth=0.5)
+    component_colors = ['lightcoral', 'lightgreen', 'lightblue']
 
     for i in range(pdf_individual.shape[1]):
-        plt.plot(x, pdf_individual[:, i], '--', label=f'GMM Component {i+1}')
+        line, = plt.plot(x, pdf_individual[:, i], '-', label=f'GMM Component {i+1}', color=component_colors[i], linewidth=0.5)
+        fill = plt.fill_between(x.flatten(), pdf_individual[:, i], color=component_colors[i], alpha=0.3)
+
+    for i, cvar in enumerate(cvar_values):
+        linestyle = '-'
+        linewidth = 1 if i != dr_cvar_index else 2.5
+        color = component_colors[i]
+        plt.axvline(cvar, color=color, linestyle=linestyle, linewidth=linewidth, label=f'Component {i+1} CVaR')
+        
+        if i == dr_cvar_index:
+            plt.annotate('DR_CVaR', xy=(cvar, 0.0), xytext=(cvar - 0.15, 0.03),
+                         arrowprops=dict(facecolor=color, shrink=0.05),
+                         horizontalalignment='right')
 
     plt.xlabel('Value')
     plt.ylabel('Density')

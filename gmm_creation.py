@@ -35,16 +35,19 @@ def plot_gmm(gmm):
     responsibilities = gmm.predict_proba(x)
     pdf = np.exp(logprob)
     pdf_individual = responsibilities * pdf[:, np.newaxis]
+    pdf = pdf * (1 / 3)
 
     plt.figure(figsize=(10, 6))
     plt.plot(x, pdf, '-k', label='GMM')
 
+    component_colors = ['lightcoral', 'lightgreen', 'lightblue']
     for i in range(pdf_individual.shape[1]):
-        plt.plot(x, pdf_individual[:, i], '--', label=f'GMM Component {i+1}')
+        line, = plt.plot(x, pdf_individual[:, i], '-', label=f'GMM Component {i+1}', color=component_colors[i], linewidth=0.5)
+        fill = plt.fill_between(x.flatten(), pdf_individual[:, i], color=component_colors[i], alpha=0.3)
 
     plt.xlabel('Value')
     plt.ylabel('Density')
-    plt.title('Gaussian Mixture Model with Inidivual Components')
+    plt.title('Gaussian Mixture Model with Individual Components')
     plt.legend()
     plt.show()
 
